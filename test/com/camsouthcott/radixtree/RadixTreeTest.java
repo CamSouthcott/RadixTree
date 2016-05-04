@@ -36,7 +36,7 @@ public class RadixTreeTest {
 		
 		radixTree.addWord(word);
 		
-		assertEquals(word,radixTree.find(word));
+		assertEquals(word,radixTree.find(word)? word:null);
 	}
 	
 	@Test
@@ -72,7 +72,7 @@ public class RadixTreeTest {
 		
 		assertEquals(1, wordList.size());
 		assertEquals(word, wordList.get(0));
-		assertEquals(word, radixTree.find(word));
+		assertEquals(word, radixTree.find(word)? word:null);
 	}
 	
 	@Test
@@ -90,8 +90,8 @@ public class RadixTreeTest {
 		
 		assertEquals(1, wordList.size());
 		assertEquals(lowercase, wordList.get(0));
-		assertEquals(lowercase, radixTree.find(lowercase));
-		assertEquals(lowercase, radixTree.find(uppercase));
+		assertEquals(lowercase, radixTree.find(lowercase)? lowercase:null);
+		assertEquals(lowercase, radixTree.find(uppercase)? lowercase:null);
 	}
 	
 	@Test 
@@ -109,8 +109,8 @@ public class RadixTreeTest {
 		assertEquals(2, wordList.size());
 		assertEquals(smallWord, wordList.get(0));
 		assertEquals(bigWord, wordList.get(1));
-		assertEquals(smallWord, radixTree.find(smallWord));
-		assertEquals(bigWord, radixTree.find(bigWord));
+		assertEquals(smallWord, radixTree.find(smallWord)? smallWord:null);
+		assertEquals(bigWord, radixTree.find(bigWord)? bigWord:null);
 	}
 	
 	@Test 
@@ -131,9 +131,9 @@ public class RadixTreeTest {
 		assertEquals(smallWord, wordList.get(0));
 		assertEquals(bigWord, wordList.get(1));
 		assertEquals(biggestWord, wordList.get(2));
-		assertEquals(smallWord, radixTree.find(smallWord));
-		assertEquals(bigWord, radixTree.find(bigWord));
-		assertEquals(biggestWord, radixTree.find(biggestWord));
+		assertEquals(smallWord, radixTree.find(smallWord)? smallWord:null);
+		assertEquals(bigWord, radixTree.find(bigWord)? bigWord:null);
+		assertEquals(biggestWord, radixTree.find(biggestWord)? biggestWord:null);
 	}
 	
 	@Test
@@ -154,9 +154,9 @@ public class RadixTreeTest {
 		assertEquals(vertex, wordList.get(0));
 		assertEquals(branch1, wordList.get(1));
 		assertEquals(branch2, wordList.get(2));
-		assertEquals(vertex, radixTree.find(vertex));
-		assertEquals(branch1, radixTree.find(branch1));
-		assertEquals(branch2, radixTree.find(branch2));
+		assertEquals(vertex, radixTree.find(vertex)? vertex:null);
+		assertEquals(branch1, radixTree.find(branch1)? branch1:null);
+		assertEquals(branch2, radixTree.find(branch2)? branch2:null);
 	}
 	
 	@Test 
@@ -177,9 +177,9 @@ public class RadixTreeTest {
 		assertEquals(smallWord, wordList.get(0));
 		assertEquals(bigWord, wordList.get(1));
 		assertEquals(biggestWord, wordList.get(2));
-		assertEquals(smallWord, radixTree.find(smallWord));
-		assertEquals(bigWord, radixTree.find(bigWord));
-		assertEquals(biggestWord, radixTree.find(biggestWord));
+		assertEquals(smallWord, radixTree.find(smallWord)? smallWord:null);
+		assertEquals(bigWord, radixTree.find(bigWord)? bigWord:null);
+		assertEquals(biggestWord, radixTree.find(biggestWord)? biggestWord:null);
 	}
 	
 	@Test
@@ -197,8 +197,8 @@ public class RadixTreeTest {
 		assertEquals(2, wordList.size());
 		assertEquals(candle, wordList.get(0));
 		assertEquals(cane, wordList.get(1));
-		assertEquals(candle, radixTree.find(candle));
-		assertEquals(cane, radixTree.find(cane));
+		assertEquals(candle, radixTree.find(candle)? candle:null);
+		assertEquals(cane, radixTree.find(cane)? cane:null);
 	}
 	
 	@Test
@@ -219,9 +219,9 @@ public class RadixTreeTest {
 		assertEquals(base, wordList.get(0));
 		assertEquals(baseball, wordList.get(1));
 		assertEquals(bass, wordList.get(2));
-		assertEquals(base, radixTree.find(base));
-		assertEquals(baseball, radixTree.find(baseball));
-		assertEquals(bass, radixTree.find(bass));
+		assertEquals(base, radixTree.find(base)? base:null);
+		assertEquals(baseball, radixTree.find(baseball)? baseball:null);
+		assertEquals(bass, radixTree.find(bass)? bass:null);
 	}
 	
 	@Test 
@@ -253,7 +253,7 @@ public class RadixTreeTest {
 		String word = "apple";
 		radixTree.addWord(word);
 		
-		assertEquals(null,radixTree.find(null));
+		assertEquals(null,radixTree.find(null)?"NotNull":null);
 	}
 	
 	@Test
@@ -263,7 +263,7 @@ public class RadixTreeTest {
 		String word = "apple";
 		radixTree.addWord(word);
 		
-		assertEquals(null,radixTree.find(""));
+		assertEquals(null,radixTree.find("")?"NotNull":null);
 	}
 	
 	@Test
@@ -273,7 +273,7 @@ public class RadixTreeTest {
 		String word = "apple";
 		radixTree.addWord(word);
 		
-		assertEquals(null,radixTree.find("apples"));
+		assertEquals(null,radixTree.find("apples")?"NotNull":null);
 	}
 
 	@Test

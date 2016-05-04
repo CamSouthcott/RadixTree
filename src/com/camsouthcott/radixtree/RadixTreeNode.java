@@ -1,213 +1,152 @@
 package com.camsouthcott.radixtree;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 class RadixTreeNode {
 	
-	private static final int nodeArrayLength = 26;
-	
 	private RadixTreeNode parent;
-	private RadixTreeNode[] nodes;
-	private String value;
+	private Map<String,RadixTreeNode> nodes;
 	private boolean isWord = false;
 	
-	protected RadixTreeNode(RadixTreeNode parent, String letters){
+	protected RadixTreeNode(RadixTreeNode parent, boolean isWord){
 		this.parent = parent;
-		value = letters;
-		nodes = new RadixTreeNode[nodeArrayLength];
-		isWord = true;
+		this.isWord = isWord;
+		nodes = newNodeMap();
 	}
 	
-	private RadixTreeNode(RadixTreeNode parent, RadixTreeNode[] nodes, String letters, boolean isWord){
+	private RadixTreeNode(RadixTreeNode parent, Map<String,RadixTreeNode> nodes, boolean isWord){
 		this.parent = parent;
-		value = letters;
 		this.nodes = nodes;
 		this.isWord = isWord;
 	}
 	
-	protected void setParent(RadixTreeNode parent){
+	private void setParent(RadixTreeNode parent){
 		this.parent = parent;
 	}
 	
-	protected void addWord(String letters){
+	private Map<String, RadixTreeNode> newNodeMap(){
+		return new TreeMap<String,RadixTreeNode>();
+	}
+	
+	protected void addWord(String newEntry){
 		
-		int highestMatchIndex = highestMatchingIndex(value, letters);
-		int lettersLength = letters.length();
-		int valueLength = value.length();
+		if(newEntry.length() == 0){
+			//newEntry shares a path with this node, set isWord to true
+			isWord = true;
+			return;
+		}
 		
-		if(highestMatchIndex == lettersLength || highestMatchIndex == valueLength){
-			if(lettersLength < valueLength){
+		String previousNodeName = findNodeName(newEntry);
+		
+		if(previousNodeName == null){
+			//No node that shares a prefix with newEntry, create new node
+			nodes.put(newEntry, new RadixTreeNode(this,true));
+			return;
+		}
+		
+		String prefix = getPrefix(newEntry, previousNodeName);
+		
+		if(prefix.length() == newEntry.length() || prefix.length() == previousNodeName.length()){
+			if(newEntry.length() < previousNodeName.length()){
 				
-				//letters should be a parent of this node
-				RadixTreeNode valueNode = new RadixTreeNode(this, nodes, value.substring(lettersLength),isWord);
+				//newEntry should be a parent of the old child
+				RadixTreeNode previousNode = nodes.get(previousNodeName);
+				nodes.remove(previousNodeName);
 				
-				for(RadixTreeNode node: nodes){
-					if(node != null){
-						node.setParent(valueNode);
-					}
-				}
+				Map<String, RadixTreeNode> newEntryNodes = newNodeMap();
+				newEntryNodes.put(previousNodeName.substring(newEntry.length()), previousNode);
 				
-				nodes = new RadixTreeNode[nodeArrayLength];
-				nodes[getIndex(value.charAt(lettersLength))] = valueNode;
-				value = value.substring(0, lettersLength);
-				isWord = true;
+				RadixTreeNode newEntryNode = new RadixTreeNode(this,newEntryNodes,true);
+				previousNode.setParent(newEntryNode);
 				
-			}else if(lettersLength > valueLength){
+				nodes.put(newEntry,newEntryNode);
 				
-				// letters should be a child of this node
-				String extraLetters = letters.substring(valueLength);
-				int index = getIndex(extraLetters.charAt(0));
-				RadixTreeNode node = nodes[index];
-				
-				if(node != null){
-					node.addWord(extraLetters);
-				}else{
-					nodes[index] = new RadixTreeNode(this,extraLetters); 
-				}
 			}else{
-				isWord = true;
+				
+				// newEntry either is oldNode or is a child of oldNode, send it to oldNode to handle
+				RadixTreeNode previousNode = nodes.get(previousNodeName);
+				previousNode.addWord(newEntry.substring(previousNodeName.length()));
 			}
 		}else{
 			
-			//a new parent node is needed since letters and value only share a substring
-			//convert this node to parent, add child nodes for letters and value
-			RadixTreeNode valueNode = new RadixTreeNode(this, nodes, value.substring(highestMatchIndex),isWord);
+			//newEntry and oldNodeName share a substring, make a new parent node for them
+			RadixTreeNode previousNode = nodes.get(previousNodeName);
+			nodes.remove(previousNodeName);
+			RadixTreeNode newEntryNode = new RadixTreeNode(null,true);
+					
+			Map<String, RadixTreeNode> prefixNodes = newNodeMap();
+			prefixNodes.put(previousNodeName.substring(prefix.length()), previousNode);
+			prefixNodes.put(newEntry.substring(prefix.length()), newEntryNode);
 			
-			for(RadixTreeNode node: nodes){
-				if(node != null){
-					node.setParent(valueNode);
+			RadixTreeNode prefixNode = new RadixTreeNode(this,prefixNodes,false);
+			previousNode.setParent(prefixNode);
+			newEntryNode.setParent(prefixNode);
+			nodes.put(prefix, prefixNode);
+		}
+	}
+	
+	protected boolean find(String letters){
+		
+		if(letters.length() == 0){
+			return isWord;
+		}else{
+			
+			String nodeName = findNodeName(letters);
+			
+			if(nodeName != null){
+				String prefix = getPrefix(letters,nodeName);
+				
+				if(prefix != null && nodeName.length() == prefix.length() && letters.length() >= nodeName.length()){
+					return nodes.get(nodeName).find(letters.substring(nodeName.length()));
 				}
 			}
-			
-			nodes = new RadixTreeNode[nodeArrayLength];
-			nodes[getIndex(value.charAt(highestMatchIndex))] = valueNode;
-			value = value.substring(0, highestMatchIndex);
-			isWord = false;
-			
-			RadixTreeNode lettersNode = new RadixTreeNode(this, letters.substring(highestMatchIndex));
-			nodes[getIndex(letters.charAt(highestMatchIndex))] = lettersNode;
-			
+				
+		}
+		
+		return false;
+	}
+	
+	protected void createList(List<String> list, String word){
+		
+		if(isWord){
+			list.add(word);
+		}
+		
+		for(String key: nodes.keySet()){
+			nodes.get(key).createList(list, word + key);
 		}
 	}
 	
-	protected String getWord(){
-		StringBuilder sb = new StringBuilder();
-		sb.insert(0, value);
+	protected String findNodeName(String letters){
 		
-		if(parent != null){
-			parent.getWord(sb);
-		}
-		
-		return sb.toString();
-	}
-	
-	protected void getWord(StringBuilder sb){
-		
-		sb.insert(0, value);
-		
-		if(parent != null){
-			parent.getWord(sb);
-		}
-	}
-	
-	protected String find(String letters){
-		
-		if(letters.length() >= value.length()){
-			
-			int highestMatchIndex = highestMatchingIndex(value,letters);
-			
-			if(highestMatchIndex == value.length()){
-				if(highestMatchIndex == letters.length()){
-					return getWord();
-				}else{
-					
-					String extraLetters = letters.substring(value.length());
-					int index = getIndex(extraLetters.charAt(0));
-					RadixTreeNode node = nodes[index];
-
-					if(node != null){
-						return node.find(extraLetters);
-					}
-				}
+		for(String key: nodes.keySet()){
+			if(letters.charAt(0) == key.charAt(0)){
+				return key;
 			}
 		}
 		
 		return null;
 	}
 	
-	protected int highestMatchingIndex(String input1, String input2){
+	protected String getPrefix(String input1, String input2){
 		
 		int highestMatchIndex = 0;
 		
 		while(highestMatchIndex < input1.length() && highestMatchIndex < input2.length()){
-			if(getIndex(input1.charAt(highestMatchIndex)) != getIndex(input2.charAt(highestMatchIndex))){
+
+			if(input1.charAt(highestMatchIndex) != input2.charAt(highestMatchIndex)){
 				break;
 			}
 			highestMatchIndex++;
 		}
 		
-		return highestMatchIndex;
-	}
-	
-	protected void createList(List<String> list){
-		
-		if(isWord){
-			list.add(getWord());
+		if(highestMatchIndex > 0){
+			return input1.substring(0,highestMatchIndex);
 		}
 		
-		for(RadixTreeNode node: nodes){
-			if(node != null){
-				node.createList(list);
-			}
-		}
+		return null;
 	}
-
-    protected static int getIndex(char c){
-
-        //convert numbers to their equivalent letters
-        switch(c){
-            case '0':
-                c = 'o';
-                break;
-            case '1':
-                c = 'i';
-                break;
-            case '2':
-                c = 'z';
-                break;
-            case '3':
-                c = 'e';
-                break;
-            case '4':
-                c = 'a';
-                break;
-            case '5':
-                c = 's';
-                break;
-            case '6':
-                c = 'g';
-                break;
-            case '7':
-                c = 't';
-                break;
-            case '8':
-                c = 'b';
-                break;
-            case '9':
-                c = 'q';
-                break;
-            default:
-                break;
-        }
-
-        //All letters
-        // Asci table: http://www.w3schools.com/charsets/ref_html_ascii.asp
-        if(c >= 'a' && c <='z'){
-            return c - 'a';
-        }else if(c >= 'A' && c <= 'Z'){
-            return c - 'A';
-        }
-
-        throw new IllegalArgumentException();
-    }
 }
