@@ -1,15 +1,14 @@
 package com.camsouthcott.radixtree;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-class RadixTreeNode {
+public class RadixTreeNode {
 	
-	private RadixTreeNode parent;
-	private Map<String,RadixTreeNode> nodes;
-	private boolean isWord = false;
+	protected RadixTreeNode parent;
+	protected Map<String,RadixTreeNode> nodes;
+	protected boolean isWord = false;
 	
 	protected RadixTreeNode(RadixTreeNode parent, boolean isWord){
 		this.parent = parent;
@@ -17,10 +16,19 @@ class RadixTreeNode {
 		nodes = newNodeMap();
 	}
 	
-	private RadixTreeNode(RadixTreeNode parent, Map<String,RadixTreeNode> nodes, boolean isWord){
+	protected RadixTreeNode(RadixTreeNode parent, Map<String,RadixTreeNode> nodes, boolean isWord){
 		this.parent = parent;
 		this.nodes = nodes;
 		this.isWord = isWord;
+	}
+	
+	//node creation functions so the class can be extended on
+	protected RadixTreeNode newNode(RadixTreeNode parent, boolean isWord){
+		return new RadixTreeNode(parent, isWord);
+	}
+	
+	protected RadixTreeNode newNode(RadixTreeNode parent, Map<String,RadixTreeNode> nodes, boolean isWord){
+		return new RadixTreeNode(parent, nodes, isWord);
 	}
 	
 	private void setParent(RadixTreeNode parent){
@@ -28,6 +36,7 @@ class RadixTreeNode {
 	}
 	
 	private Map<String, RadixTreeNode> newNodeMap(){
+		//Tree Map is required if alphabetical order is important
 		return new TreeMap<String,RadixTreeNode>();
 	}
 	
@@ -43,7 +52,7 @@ class RadixTreeNode {
 		
 		if(previousNodeName == null){
 			//No node that shares a prefix with newEntry, create new node
-			nodes.put(newEntry, new RadixTreeNode(this,true));
+			nodes.put(newEntry, newNode(this,true));
 			return;
 		}
 		
@@ -59,7 +68,7 @@ class RadixTreeNode {
 				Map<String, RadixTreeNode> newEntryNodes = newNodeMap();
 				newEntryNodes.put(previousNodeName.substring(newEntry.length()), previousNode);
 				
-				RadixTreeNode newEntryNode = new RadixTreeNode(this,newEntryNodes,true);
+				RadixTreeNode newEntryNode = newNode(this,newEntryNodes,true);
 				previousNode.setParent(newEntryNode);
 				
 				nodes.put(newEntry,newEntryNode);
@@ -75,13 +84,13 @@ class RadixTreeNode {
 			//newEntry and oldNodeName share a substring, make a new parent node for them
 			RadixTreeNode previousNode = nodes.get(previousNodeName);
 			nodes.remove(previousNodeName);
-			RadixTreeNode newEntryNode = new RadixTreeNode(null,true);
+			RadixTreeNode newEntryNode = newNode(null,true);
 					
 			Map<String, RadixTreeNode> prefixNodes = newNodeMap();
 			prefixNodes.put(previousNodeName.substring(prefix.length()), previousNode);
 			prefixNodes.put(newEntry.substring(prefix.length()), newEntryNode);
 			
-			RadixTreeNode prefixNode = new RadixTreeNode(this,prefixNodes,false);
+			RadixTreeNode prefixNode = newNode(this,prefixNodes,false);
 			previousNode.setParent(prefixNode);
 			newEntryNode.setParent(prefixNode);
 			nodes.put(prefix, prefixNode);
@@ -110,7 +119,7 @@ class RadixTreeNode {
 	}
 	
 	protected void createList(List<String> list, String word){
-		
+		//word contains the letters on the path to this node
 		if(isWord){
 			list.add(word);
 		}
@@ -122,6 +131,7 @@ class RadixTreeNode {
 	
 	protected String findNodeName(String letters){
 		
+		//Finds the name of the node which matches the first char of letters
 		for(String key: nodes.keySet()){
 			if(letters.charAt(0) == key.charAt(0)){
 				return key;

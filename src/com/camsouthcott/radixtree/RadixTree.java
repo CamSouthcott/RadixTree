@@ -5,10 +5,15 @@ import java.util.List;
 
 public class RadixTree {
 
-	private RadixTreeNode head;
+	protected RadixTreeNode head;
 	
 	public RadixTree(){
 		head = new RadixTreeNode(null,false);
+	}
+	
+	//For use with child classes
+	protected RadixTree(RadixTreeNode head){
+		this.head = head;
 	}
 	
 	public boolean find(String word){
@@ -41,7 +46,7 @@ public class RadixTree {
 		}
 	}
 	
-	private static String formatWord(String word){
+	protected static String formatWord(String word){
 		
 		try{
 			StringBuilder sb = new StringBuilder();
@@ -56,8 +61,8 @@ public class RadixTree {
 		}
 	}
 	
-    private static char formatChar(char c){
-
+    protected static char formatChar(char c){
+    	
         //convert numbers to their equivalent letters
         switch(c){
             case '0':
