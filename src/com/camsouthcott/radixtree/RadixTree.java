@@ -46,6 +46,17 @@ public class RadixTree {
 		}
 	}
 	
+	public void deleteWord(String word){
+		
+		if(word != null){
+			word = formatWord(word.trim());
+
+			if(word != null && !word.isEmpty()){
+				head.delete(word);
+			}
+		}
+	}
+	
 	protected static String formatWord(String word){
 		
 		try{

@@ -40,6 +40,7 @@ public class RadixTreeNode {
 		return new TreeMap<String,RadixTreeNode>();
 	}
 	
+	//recursive method for adding words to the tree
 	protected void addWord(String newEntry){
 		
 		if(newEntry.length() == 0){
@@ -48,7 +49,7 @@ public class RadixTreeNode {
 			return;
 		}
 		
-		String previousNodeName = findNodeName(newEntry);
+		String previousNodeName = findNodeNameByFirstLetter(newEntry);
 		
 		if(previousNodeName == null){
 			//No node that shares a prefix with newEntry, create new node
@@ -97,13 +98,55 @@ public class RadixTreeNode {
 		}
 	}
 	
+	//recursive method for deleting words from the tree
+	//returns whether the parent node should delete this node
+	protected boolean delete(String letters){
+		
+		int nChild = nodes.size();
+		
+		if(letters.length() == 0){
+			//delete is targeting this node
+			if(nChild == 0){
+				//node is childless, tell parent to remove this node
+				return true;
+
+			}else{
+				//node has children, mark as not a word, but dont remove node from parent
+				isWord = false;
+				return false;
+			}
+		}else{
+			// delete is possibly targeting a child node
+			
+			String key = findNodeNameByNodeName(letters);
+			
+			if(key != null){
+				//delete call can be mapped to a child node
+				RadixTreeNode node = nodes.get(key);
+				
+				boolean removeNode = node.delete(letters.substring(key.length()));
+				
+				if(removeNode){
+					nodes.remove(key);
+				}
+				
+				return nChild == 1 && removeNode && !isWord;
+				
+			}else{
+				//delete call does not map to any child nodes, no action required
+				return false;
+			}
+		}
+	}
+	
+	//Recurse method for finding if a word exists in the tree
 	protected boolean find(String letters){
 		
 		if(letters.length() == 0){
 			return isWord;
 		}else{
 			
-			String nodeName = findNodeName(letters);
+			String nodeName = findNodeNameByFirstLetter(letters);
 			
 			if(nodeName != null){
 				String prefix = getPrefix(letters,nodeName);
@@ -129,9 +172,9 @@ public class RadixTreeNode {
 		}
 	}
 	
-	protected String findNodeName(String letters){
-		
-		//Finds the name of the node which matches the first char of letters
+	//Finds the name of the node which matches the first char of letters
+	protected String findNodeNameByFirstLetter(String letters){
+			
 		for(String key: nodes.keySet()){
 			if(letters.charAt(0) == key.charAt(0)){
 				return key;
@@ -141,6 +184,19 @@ public class RadixTreeNode {
 		return null;
 	}
 	
+	//finds the name of the node who's name is a prefix of letters
+	protected String findNodeNameByNodeName(String letters){
+		
+		for(String key: nodes.keySet()){
+			if(letters.startsWith(key)){
+				return key;
+			}
+		}
+		
+		return null;
+	}
+	
+	//Takes in 2 strings and finds the maximum length string that is a prefix of both inputs
 	protected String getPrefix(String input1, String input2){
 		
 		int highestMatchIndex = 0;

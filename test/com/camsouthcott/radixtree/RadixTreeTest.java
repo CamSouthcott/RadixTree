@@ -10,11 +10,14 @@ import org.junit.runner.notification.Failure;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 
 public class RadixTreeTest {
+	
+	public static final int WORD_LIST_SIZE = 109561;
 	
 	public static void main(String[] args){
 		
@@ -279,35 +282,19 @@ public class RadixTreeTest {
 	@Test
 	public void largeTree(){
 		
-		List<String> sortedWordList = new LinkedList<String>();
-		List<String> shuffledWordList = new LinkedList<String>();
+		List<String> sortedWordList = new ArrayList<String>(WORD_LIST_SIZE + 1);
+		List<String> shuffledWordList = new ArrayList<String>(WORD_LIST_SIZE + 1);
 		RadixTree radixTree = new RadixTree();
-		int wordListSize = 109561;
 		
-		
-
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(RadixTreeTest.class.getResourceAsStream("/words.txt")));
-
-			String line;
-
-
-			while((line = br.readLine()) != null){
-				String[] wordArray = line.split(" ");
-
-				for(String word: wordArray){
-					sortedWordList.add(word);
-					shuffledWordList.add(word);
-				}
-			}
-		} catch (IOException e) {
-			fail("IO exception");
-		}
+		List<List<String>> listsToFill = new ArrayList<List<String>>();
+		listsToFill.add(sortedWordList);
+		listsToFill.add(shuffledWordList);
+		fillWordLists(listsToFill);
 
 		Collections.shuffle(shuffledWordList);
 		
-		assertEquals(wordListSize,sortedWordList.size());
-		assertEquals(wordListSize,shuffledWordList.size());
+		assertEquals(WORD_LIST_SIZE,sortedWordList.size());
+		assertEquals(WORD_LIST_SIZE,shuffledWordList.size());
 
 		for(String word : shuffledWordList){
 			try{
@@ -320,11 +307,34 @@ public class RadixTreeTest {
 		}
 
 		List<String> wordListFromTree = radixTree.toList();
+		Iterator<String> treeListIterator = wordListFromTree.iterator();
 
-		//assertEquals(wordListSize,wordListFromTree.size());
+		assertEquals(WORD_LIST_SIZE,wordListFromTree.size());
 
-		for(int i = 0; i < wordListFromTree.size(); i++){
-			assertEquals(sortedWordList.get(i), wordListFromTree.get(i));
+		for(String word : sortedWordList){
+			assertEquals(word, treeListIterator.next());
+		}
+	}
+	
+	public static void fillWordLists(List<List<String>> lists ){
+		
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(RadixTreeTest.class.getResourceAsStream("/words.txt")));
+
+			String line;
+
+
+			while((line = br.readLine()) != null){
+				String[] wordArray = line.split(" ");
+
+				for(String word: wordArray){
+					for(List<String> list: lists){
+						list.add(word);
+					}
+				}
+			}
+		} catch (IOException e) {
+			fail("IO exception");
 		}
 	}
 }
