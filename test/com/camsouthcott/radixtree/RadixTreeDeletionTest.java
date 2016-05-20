@@ -29,6 +29,43 @@ public class RadixTreeDeletionTest {
 	}
 	
 	@Test
+	public void deleteNull(){
+		RadixTree radixTree = new RadixTree();
+		
+		String word = "Olives";
+		
+		radixTree.addWord(word);
+		
+		assertEquals(word,radixTree.find(word)? word:null);
+		
+		radixTree.deleteWord(null);
+		
+		List<String> wordList = radixTree.toList();
+		
+		assertEquals(1, wordList.size());
+		assertEquals(word,radixTree.find(word)? word:null);
+	}
+	
+	@Test
+	public void deleteNotInTree(){
+		RadixTree radixTree = new RadixTree();
+		
+		String word = "Olives";
+		String wordNotFound = "olive";
+		
+		radixTree.addWord(word);
+		
+		assertEquals(word,radixTree.find(word)? word:null);
+		
+		radixTree.deleteWord(wordNotFound);
+		
+		List<String> wordList = radixTree.toList();
+		
+		assertEquals(1, wordList.size());
+		assertEquals(word,radixTree.find(word)? word:null);
+	}
+	
+	@Test
 	public void deleteChild(){
 		RadixTree radixTree = new RadixTree();
 		
