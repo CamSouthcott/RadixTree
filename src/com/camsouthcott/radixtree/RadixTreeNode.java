@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+
+//Node class of tree for compressing the storage of strings
+//Unless the tree is empty, this code assumes that the terminating node of every branch is a word
 public class RadixTreeNode {
 	
-	protected RadixTreeNode parent;
-	protected Map<String,RadixTreeNode> nodes;
-	protected boolean isWord = false;
+	private RadixTreeNode parent;
+	private Map<String,RadixTreeNode> nodes;
+	private boolean isWord = false;
 	
 	protected RadixTreeNode(RadixTreeNode parent, boolean isWord){
 		this.parent = parent;
@@ -29,6 +32,18 @@ public class RadixTreeNode {
 	
 	protected RadixTreeNode newNode(RadixTreeNode parent, Map<String,RadixTreeNode> nodes, boolean isWord){
 		return new RadixTreeNode(parent, nodes, isWord);
+	}
+	
+	protected boolean isWord(){
+		return isWord;
+	}
+	
+	protected Map<String, RadixTreeNode> getChildren(){
+		return nodes;
+	}
+	
+	protected RadixTreeNode getParent(){
+		return parent;
 	}
 	
 	private void setParent(RadixTreeNode parent){
@@ -100,6 +115,8 @@ public class RadixTreeNode {
 	
 	//recursive method for deleting words from the tree
 	//returns whether the parent node should delete this node
+	//a node is only deleted when it no longer has any children and it is not a word
+	//no compression is done, ie a chain of non-word nodes with a single child can be created by adding and removing related words
 	protected boolean delete(String letters){
 		
 		int nChild = nodes.size();
@@ -161,14 +178,14 @@ public class RadixTreeNode {
 		return false;
 	}
 	
-	protected void createList(List<String> list, String word){
-		//word contains the letters on the path to this node
+	protected void createList(List<String> list, String path){
+		
 		if(isWord){
-			list.add(word);
+			list.add(path);
 		}
 		
 		for(String key: nodes.keySet()){
-			nodes.get(key).createList(list, word + key);
+			nodes.get(key).createList(list, path + key);
 		}
 	}
 	

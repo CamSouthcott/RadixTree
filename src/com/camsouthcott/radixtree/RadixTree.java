@@ -1,5 +1,6 @@
 package com.camsouthcott.radixtree;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -55,6 +56,10 @@ public class RadixTree {
 				head.delete(word);
 			}
 		}
+	}
+	
+	public Iterator<String> iterator(){
+		return new RadixTreeIterator(head);
 	}
 	
 	protected static String formatWord(String word){
