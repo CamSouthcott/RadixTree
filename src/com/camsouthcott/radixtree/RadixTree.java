@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RadixTree {
+public class RadixTree implements Iterable<String>{
 
 	protected RadixTreeNode head;
 	
