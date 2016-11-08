@@ -19,18 +19,6 @@ public class RadixTreeTest {
 	
 	public static final int WORD_LIST_SIZE = 109561;
 	
-	public static void main(String[] args){
-		
-		System.out.println("Trie Test Started");
-		Result result = JUnitCore.runClasses(RadixTreeTest.class);
-
-		for(Failure failure : result.getFailures()){
-			System.out.println(failure.toString());
-		}
-		
-		System.out.println("Trie Test Result: " + result.wasSuccessful());
-	}
-	
 	@Test
 	public void insertion(){
 		RadixTree radixTree = new RadixTree();

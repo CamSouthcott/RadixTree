@@ -85,6 +85,8 @@ public class RadixTreeIteratorTest {
 			radixTree.deleteWord(word);
 		}
 		
+		List<String> list = radixTree.toList();
+		
 		Iterator<String> iterator = radixTree.iterator();
 		
 		assertTrue(iterator.hasNext());
